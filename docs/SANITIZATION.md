@@ -29,7 +29,9 @@ constant, seed, hyper-parameter, threshold or measurement was touched.
 
 ## Verification performed after editing
 
-- `grep -rniE "yanji|h3c|/media/|10\.246\.|@qq\.com"` over the release tree → no matches.
+- `grep -rni` for the site username, the storage-vendor token, the absolute mount prefix
+  (`/media/`), the cluster IP range and any personal e-mail address → no matches outside this
+  file's own placeholder table.
 - No e-mail address, token, key, hostname or SSH target is present in any file.
 - `results/`, `*.pt`, `__pycache__/`, `*.log` and `*.bak*` are excluded by `.gitignore`.
 - The two edited `.py` files still parse (`python -m py_compile`), and their public interfaces
