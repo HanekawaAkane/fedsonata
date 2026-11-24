@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-17",
+  "status": "campaign_complete_core36",
+  "launched_at": "2026-11-17T18:05+08:00",
+  "completed_at": "2026-11-18T09:50+08:00",
+  "core_36_results": {
+    "main_network_24": "DONE 24/24, 0 FAILED, pairing OK",
+    "ideal_shift_12": "DONE 12/12, 0 FAILED, pairing OK",
+    "ideal_check": "PASS: 6/6 runs zero deadline miss, zero dropout, on_time=1.000; FULL vs DELIVERY_CONTROL_OPEN per-round per-metric identical (ndiff=0) across 3 seeds",
+    "shift_findings": "FULL-DCO byte gap grows with reliability decay: p1 -19.0MB, p2-stress -35.9MB, p3-recover -61.2MB (3 seeds consistent, accuracy diffs cross zero); recovery complete by round 20 in all seeds; stress depresses on_time to 0.49-0.64 in both arms",
+    "report": "results_agg/report.csv + report.json (base) + shift_ideal_report.txt"
+  },
+  "endpoint_patch": {
+    "issue": "stock code evaluates holdout once on the restored best-validation model; round-20 holdout (primary endpoint) not separately recorded",
+    "protocol_requirement": "PROTOCOL_CN: 第 20 轮是主终点，选取结果与最终轮结果分列；旧 restore_best_validation 输出不能直接充当第 20 轮结果",
+    "fix": "patch_fs23_endpoints.py: final_round_snapshot before restore; two-phase holdout eval (final_round -> validation_selected); accuracy_final_round / accuracy_validation_selected / fs23_phase_holdout in final_metrics.json; both endpoint checkpoints saved to disk",
+    "legacy_accuracy_field": "unchanged meaning (validation-selected when restore on)",
+    "verified_by": "endpoint smoke: both fields present, both checkpoints (~30MB each) saved, 47 gate tests still pass",
+    "first_launch_disposition": "7 partial runs lacked the primary endpoint -> moved to results/_aborted_endpoint_fix/ (evidence kept)"
+  },
+  "anchor_run": {
+    "run_id": "fs23_20261117_base_full_s42",
+    "trace_hash": "afbe686aef47ad7cbc42f4d9adf132ba0d92d707058e85368799464802e5df46",
+    "trace_hash_matches_nov6_record": true,
+    "data_split_hash": "6464a074a1b061590616a859203ea5a9d8ac76b5f68bfc8098da465372fa1382",
+    "data_split_hash_matches_nov6_record": true
+  },
+  "source_baseline": {
+    "remote_code": "/data/fedsonata_journal/lossaware_wire_matched_20261016/code",
+    "recorded_main_sha256": "34b5fa87620dd3bff6d0309e56854d8d8301d5882a4532f4f93327ed106d730c",
+    "all_37_recorded_hashes_match": true,
+    "snapshot": "/data/fedsonata_journal/fs23_experiments_20261117/code",
+    "patcher": "patch_fs23_switches.py (anchored replacements, compile-checked)"
+  },
+  "prelaunch_gates": {
+    "capture_exact_recorded_main_source_and_environment": "PASS",
+    "implement_independent_radio_corrector_override": "PASS (radio_policy enum -> final dispatch only)",
+    "implement_raw_vs_consumer_visible_state_views": "PASS (age_view via EffectiveStaleness.effective; ReliabilityView at 6 consumer sites)",
+    "decouple_age_composition_from_radio_outer_coefficient": "PASS (age_delivery_weight / radio_outer_age_weight)",
+    "validate_rng_streams_and_exogenous_pairing": "PASS (G1/G4b/G5; per-seed trace+split hash pairing monitored)",
+    "validate_bapft_radio_only_adapter_and_resource_constraints": "PASS (G6; deadline clamped into [d_min,d_max], explicit fallback)",
+    "verify_projection_threshold_semantics_and_all_consumers": "PASS (G4 exact-equality trigger; age_view reaches LPC)",
+    "include_correction_work_for_all_arms": "PASS (predictor kept in all radio arms; solver_ms logged)",
+    "validate_final_and_validation_selected_checkpoints": "PENDING (verify after first complete run)",
+    "pass_smoke_without_treating_smoke_as_evidence": "PASS (6 smoke variants; S2 message_sha256 identical round-1)"
+  },
+  "smoke_matrix": {
+    "runs": 6,
+    "checker": "tests/check_smoke.py",
+    "result": "all pass; smoke kept out of evidence"
+  },
+  "bapft_style_reference": {
+    "paper": "Tang, Cheng, Li, Wang, Ng, Leung. Accelerating Federated Learning Under Client Dropout via Joint Bandwidth Allocation and Prototype Fine-Tuning in MEC Networks. IEEE TMC (accepted).",
+    "official_repo": "https://github.com/kt4ngw/BAPFT",
+    "radio_part": "src/allocation_alo — per-round bandwidth allocation + deadline determination to minimise waiting under dropout",
+    "learning_part_excluded": "src/fed_server — mix-up prototype fine-tuning (NOT used in RADIO_BAPFT)",
+    "our_adapter": "bapft_ba block: equal-finish bandwidth at p_max under shared bandwidth/power/deadline interval; infeasible -> explicit fallback. Labelled BAPFT-style radio module comparison only; not a full BAPFT reproduction (PROTOCOL_CN A)."
+  },
+  "campaign_plan": {
+    "stage_main": "8 arms x 3 seeds x base = 24",
+    "stage_shift": "(FULL, DELIVERY_CONTROL_OPEN) x 3 seeds x (ideal, shift) = 12",
+    "optional_lpc": "6 (separate, not mixed into the 36)",
+    "dispatcher": "scripts/run_matrix.sh (2 streams per GPU on 0,2,4)",
+    "estimated_wall_clock": "~5h for stage main"
+  },
+  "notes": [
+    "run.log confirms ~2.5-3 min/round at full data fraction; single process ~12GB VRAM.",
+    "Output dirs follow manifest.jsonl output_relative_dir exactly.",
+    "Manifest rows remain status=planned_not_launched as the frozen design record; this file is the live launch record."
+  ]
+}

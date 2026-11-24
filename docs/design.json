@@ -1,0 +1,197 @@
+{
+  "schema": "fedsonata-experiment-design/1.0",
+  "date": "2026-11-17",
+  "status": "design_only_not_launched",
+  "baseline_config": "D:\\论文\\fedsonata_journal\\artifacts\\edge_factor_main_20261106\\results\\main_s42\\config.json",
+  "baseline_config_sha256": "0e6c95c77bdbfbc81d9ca4fc06d2c1d2051e0247d92d3bba57da4127a0197948",
+  "recorded_main_sha256": "34b5fa87620dd3bff6d0309e56854d8d8301d5882a4532f4f93327ed106d730c",
+  "common_protocol": {
+    "method": "fedharp",
+    "mec_method": "proposed_joint_rift_ef_cora",
+    "dataset": "cifar100",
+    "model_name": "vit_base_patch16_224",
+    "num_clients": 20,
+    "clients_per_round": 20,
+    "num_rounds": 20,
+    "data_partition": "dirichlet",
+    "alpha": 0.1,
+    "data_fraction": 0.2,
+    "client_splits": "0.8,0.1,0.1",
+    "lora_rank": 8,
+    "lora_alpha": 16.0,
+    "heterogeneity_type": "6-3-1",
+    "allocation_ratio": 0.5,
+    "batch_size": 16,
+    "test_batch_size": 100,
+    "client_lr": 0.01,
+    "lora_lr": 0.0003,
+    "classifier_lr": 0.001,
+    "num_epochs": 1,
+    "evaluation_scope": "personalized_client_holdout",
+    "classifier_policy": "client_local",
+    "rift_budget_ratio": 0.35,
+    "rift_quantum_bytes": 4096,
+    "rift_reliability_floor": 0.25,
+    "rift_ef_decay": 0.5,
+    "lpc_mode": "projection",
+    "projection_ridge": 1e-06,
+    "reliability_beta": 0.8,
+    "channel_model": "correlated",
+    "channel_correlation": 0.9,
+    "channel_gain_mean": 1e-10,
+    "dropout_model": "gilbert_elliott",
+    "dropout_rate": 0.2,
+    "ge_good_to_bad": 0.1,
+    "ge_bad_to_good": 0.4000000000000001,
+    "duration_hazard_rate": 0.1,
+    "total_bandwidth_mhz": 5.0,
+    "power_max_dbm": 23.0,
+    "d_min_s": 0.5,
+    "d_max_s": 10.0,
+    "lambda_e": 0.1,
+    "lambda_u": 1.0,
+    "deadline_grid_size": 24,
+    "energy_model": "model-based simulated",
+    "wire_codec": "edge_random_rift",
+    "matrix_mode": "ab",
+    "deadline_mode": "fill",
+    "partial_arrival": false,
+    "fixed_rounds": 20,
+    "b_train_every": 4,
+    "eval_every": 1,
+    "lora_dropout": 0.0,
+    "edge_prior_tau": 0.22,
+    "edge_prior_floor": 0.25,
+    "early_stopping": false,
+    "primary_checkpoint": "round_20",
+    "secondary_checkpoint": "validation_selected",
+    "save_both_final_and_selected": true,
+    "primary_metric": "personalized_client_holdout_accuracy_pct",
+    "target_validation_accuracy_pct": [
+      85.0,
+      88.0
+    ],
+    "reliability_initial": 1.0,
+    "age_delivery_weight": 1.0,
+    "radio_outer_age_weight": 1.0,
+    "predictor_policy": "common_cora_upper_bound_predictor",
+    "wire_replay": null,
+    "honest_arrival_aggregation": true,
+    "honest_ack_residual_clearing": true,
+    "raw_state_updates": "always_observed",
+    "legacy_server_age_policy": "unchanged",
+    "correction_work_accounting": "measured_work_included_in_modeled_cost_for_all_arms",
+    "interruption_clock": "positive_hazard: -log1p(-U)/hazard, U in [0,1); zero_hazard: null_no_event"
+  },
+  "network_scenarios": {
+    "BASE": {
+      "phases": [
+        {
+          "round_start": 1,
+          "round_end": 20,
+          "ge_good_to_bad": 0.1,
+          "ge_bad_to_good": 0.4,
+          "initial_bad_probability": 0.2,
+          "hazard_per_s": 0.1
+        }
+      ],
+      "channel": "common_correlated",
+      "phase_boundary_state": "continuous"
+    },
+    "IDEAL": {
+      "phases": [
+        {
+          "round_start": 1,
+          "round_end": 20,
+          "availability": "always_available",
+          "hazard_per_s": 0.0,
+          "interruption_event": null,
+          "zero_hazard_branch": "no_event_no_division"
+        }
+      ],
+      "channel": "common_correlated",
+      "must_have_zero_deadline_misses": true,
+      "otherwise": "sanity_check_failed_no_equivalence_claim"
+    },
+    "SHIFT": {
+      "phases": [
+        {
+          "round_start": 1,
+          "round_end": 10,
+          "ge_good_to_bad": 0.1,
+          "ge_bad_to_good": 0.4,
+          "initial_bad_probability": 0.2,
+          "hazard_per_s": 0.1
+        },
+        {
+          "round_start": 11,
+          "round_end": 15,
+          "ge_good_to_bad": 0.2,
+          "ge_bad_to_good": 0.3,
+          "hazard_per_s": 0.2
+        },
+        {
+          "round_start": 16,
+          "round_end": 20,
+          "ge_good_to_bad": 0.1,
+          "ge_bad_to_good": 0.4,
+          "initial_bad_probability": null,
+          "hazard_per_s": 0.1
+        }
+      ],
+      "channel": "common_correlated",
+      "phase_boundary_state": "continuous_no_reset"
+    }
+  },
+  "groups": {
+    "radio": [
+      "FULL",
+      "RADIO_EQUAL",
+      "RADIO_BAPFT"
+    ],
+    "staleness_2x2": [
+      "AGE_OFF",
+      "ALLOC_ONLY",
+      "DELIVERY_ONLY",
+      "FULL"
+    ],
+    "delivery_control_2x2": [
+      "DELIVERY_CONTROL_OPEN",
+      "ALLOC_ONLY",
+      "NO_RELIABILITY",
+      "FULL"
+    ]
+  },
+  "seeds": [
+    42,
+    2025,
+    2026
+  ],
+  "core_training_runs": 36,
+  "optional_lpc_training_runs": 6,
+  "stage_counts": {
+    "BASE": 24,
+    "IDEAL": 6,
+    "SHIFT": 6,
+    "optional_lpc": 6
+  },
+  "primary_endpoints": [
+    "round20_personalized_holdout",
+    "cumulative_modeled_energy",
+    "cumulative_UL_DL_bytes"
+  ],
+  "confidence_intervals": "paired_seed_t_interval_95pct_df2_for_three_seeds_report_all_no_equivalence_claim",
+  "source_audit": "implementation_audit.md",
+  "prelaunch_gates": [
+    "capture_exact_recorded_main_source_and_environment",
+    "implement_independent_radio_corrector_override",
+    "implement_raw_vs_consumer_visible_state_views",
+    "decouple_age_composition_from_radio_outer_coefficient",
+    "validate_rng_streams_and_exogenous_pairing",
+    "validate_bapft_radio_only_adapter_and_resource_constraints",
+    "verify_projection_threshold_semantics_and_all_consumers",
+    "include_correction_work_for_all_arms",
+    "validate_final_and_validation_selected_checkpoints",
+    "pass_smoke_without_treating_smoke_as_evidence"
+  ]
+}
